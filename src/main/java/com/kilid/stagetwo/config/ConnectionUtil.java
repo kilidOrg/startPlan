@@ -33,19 +33,4 @@ public class ConnectionUtil  {
     }
 
 
-
-
-//    private static EntityManagerFactory entityManagerFactory ;
-//    public Session getSession(){
-//        Configuration configuration = new Configuration();
-//        Connection connection = null;
-//        SessionFactory sessionFactory = configuration.buildSessionFactory();
-//        //Connection connection = configuration.configure("application.yml");
-//        Session session = sessionFactory.openSession();
-//        return session;
-//    }
-//    public void closeSession(){
-//        this.sessionInstance.close();
-//    }
-
 }

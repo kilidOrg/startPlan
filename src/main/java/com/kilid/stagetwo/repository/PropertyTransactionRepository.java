@@ -18,8 +18,8 @@ import java.util.List;
 public class PropertyTransactionRepository implements PropertyTransactionInterface {
     @Autowired
     ConnectionUtil connectionUtil;
-
-    public List<PropertyTransactionDto> searchAction(RecivedItem recivedItem) throws SQLException {
+    @Override
+    public List<PropertyTransactionDto> searchAction(RecivedItem recivedItem , Integer pageNumber) throws SQLException {
         PaginationItem<PropertyTransactionDto> propertyTransactionDtoPaginationItem = new PaginationItem<>();
         String query =" select ppt.id as id ," +
                     "   ppt.uprn as uprn , " +
@@ -36,9 +36,10 @@ public class PropertyTransactionRepository implements PropertyTransactionInterfa
                     " (select AVG(p.price_metric1)  from public.property_transaction_10 p where 1=1" +
                 "          group by p.price_metric1 ) as price_metric1 ," +
                     " ppt.price_metric2 as price_metric2 , " +
-                "     ( select count(*) as totalNumber  from public.property_transaction_10 property" +
+                "     ( select count(*) as totalNumber  from public.property_transaction_10 " +
                 "       where 1=1 " +
-                "       group by id ) as totalNumber " +
+                "       group by id ) as totalNumber , " +
+                "      ( select ROW_NUMBER() OVER( order by id desc ) from public.property_transaction_10  ) as rowNumber " +
                     " from public.property_transaction_10 ppt  where 1 = 1 " ;
         if(recivedItem.getProperty_type_id() != null){
 
@@ -72,6 +73,7 @@ public class PropertyTransactionRepository implements PropertyTransactionInterfa
                 "                 currency_metric_id,\n" +
                 "                 price_metric1 ,\n" +
                 "                 price_metric2 ,\n" +
+                "                 totalNumber , " +
                 "                 rowNumber\n" +
                 "                 from propertyTransaction where  rowNumber > 1 and rowNumber < 12 ";
         PreparedStatement preparedStatement =  ConnectionUtil.connection.prepareStatement(query);
@@ -101,13 +103,13 @@ public class PropertyTransactionRepository implements PropertyTransactionInterfa
             propertyTransactionDto.setCurrency_metric_id(resultSet.getInt("currency_metric_id"));
             propertyTransactionDto.setPrice_metric1(resultSet.getFloat("price_metric1"));
             propertyTransactionDto.setPrice_metric2(resultSet.getFloat("price_metric2"));
-            propertyTransactionDtoList.add(propertyTransactionDto);
+            propertyTransactionDtoPaginationItem.setPageCount(resultSet.getInt(("totalNumber")));
+            propertyTransactionDtoPaginationItem.setTotalNumber(resultSet.getInt("totalNumber"));
             propertyTransactionDtoPaginationItem.setDataList(propertyTransactionDtoList);
+            propertyTransactionDtoList.add(propertyTransactionDto);
         }
         propertyTransactionDtoPaginationItem.setDataList(propertyTransactionDtoPaginationItem.getDataList());
-        propertyTransactionDtoPaginationItem.setPageCount(resultSet.getInt(("")));
-        propertyTransactionDtoPaginationItem.setTotalNumber(resultSet.getInt(""));
-
+        preparedStatement.close();
         return propertyTransactionDtoList;
     }
 }

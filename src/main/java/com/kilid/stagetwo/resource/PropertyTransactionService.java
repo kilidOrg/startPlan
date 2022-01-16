@@ -15,7 +15,7 @@ public class PropertyTransactionService {
     @Autowired
     PropertyTransactionRepository propertyTransactionRepository;
 
-    public List<PropertyTransactionDto> searchAction(RecivedItem recivedItem) throws SQLException {
-        return propertyTransactionRepository.searchAction(recivedItem);
+    public List<PropertyTransactionDto> searchAction(RecivedItem recivedItem , Integer pageNumber) throws SQLException {
+        return propertyTransactionRepository.searchAction(recivedItem , pageNumber);
     }
 }
